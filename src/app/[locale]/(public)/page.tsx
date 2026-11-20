@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
@@ -16,6 +16,11 @@ import {
   FileText,
   ArrowRight,
   ArrowUpRight,
+  Banknote,
+  Clock,
+  ArrowUpDown,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../components/Navbar';
@@ -52,6 +57,147 @@ const SECTORS = [
   { id: 'internship', label: 'Internships' },
 ];
 
+const SALARY_RANGES = [
+  { id: 'all', label: 'Any Salary' },
+  { id: 'under_150', label: 'Under LKR 150k' },
+  { id: '150_300', label: 'LKR 150k – 300k' },
+  { id: 'above_300', label: 'LKR 300k+' },
+];
+
+const DATE_FILTERS = [
+  { id: 'all', label: 'Anytime' },
+  { id: '1', label: 'Last 24 Hours' },
+  { id: '7', label: 'Last 7 Days' },
+  { id: '30', label: 'Last 30 Days' },
+];
+
+const WORKPLACE_OPTIONS = [
+  { id: 'All', label: 'All Work Modes' },
+  { id: 'On-Site', label: 'On-Site' },
+  { id: 'Hybrid', label: 'Hybrid' },
+  { id: 'Remote', label: 'Remote' },
+];
+
+const SORT_OPTIONS = [
+  { id: 'newest', label: 'Newest First' },
+  { id: 'salary', label: 'Highest Salary' },
+  { id: 'closing', label: 'Closing Soon' },
+];
+
+interface DropdownOption {
+  id: string;
+  label: string;
+}
+
+interface FilterDropdownProps {
+  icon: React.ReactNode;
+  value: string;
+  options: DropdownOption[];
+  onChange: (value: string) => void;
+  isDarkMode: boolean;
+  align?: 'left' | 'right';
+}
+
+function FilterDropdown({
+  icon,
+  value,
+  options,
+  onChange,
+  isDarkMode,
+  align = 'left',
+}: FilterDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const selectedOption =
+    options.find((opt) => opt.id === value) || options[0];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const isFiltered = value !== options[0].id;
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+          isFiltered
+            ? isDarkMode
+              ? 'bg-[#29AAE3]/15 border-[#29AAE3]/50 text-zinc-100'
+              : 'bg-[#29AAE3]/10 border-[#29AAE3]/40 text-zinc-900'
+            : isDarkMode
+            ? 'bg-[#121212] border-zinc-800 text-zinc-200 hover:border-zinc-700'
+            : 'bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
+        }`}
+      >
+        <span className="flex-shrink-0 text-[#29AAE3]">{icon}</span>
+        <span className="whitespace-nowrap">{selectedOption.label}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform duration-200 ${
+            open ? 'rotate-180 text-[#29AAE3]' : 'text-zinc-400'
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className={`absolute z-50 mt-2 min-w-[180px] rounded-xl border p-1.5 shadow-xl ${
+              align === 'right' ? 'right-0' : 'left-0'
+            } ${
+              isDarkMode
+                ? 'bg-[#1A1A1A] border-zinc-800 shadow-black/60'
+                : 'bg-white border-zinc-200/90 shadow-zinc-200/70'
+            }`}
+          >
+            {options.map((opt) => {
+              const active = opt.id === value;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.id);
+                    setOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors cursor-pointer text-left ${
+                    active
+                      ? isDarkMode
+                        ? 'bg-[#29AAE3]/15 text-[#29AAE3] font-semibold'
+                        : 'bg-[#29AAE3]/10 text-[#29AAE3] font-semibold'
+                      : isDarkMode
+                      ? 'text-zinc-300 hover:bg-white/5'
+                      : 'text-zinc-700 hover:bg-zinc-100/80'
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {active && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function Homepage() {
   const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -63,12 +209,18 @@ export default function Homepage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
- const [jobScope, setJobScope] = useState<
-  'all' | 'local' | 'foreign'
->('all');
+  const [jobScope, setJobScope] = useState<'all' | 'local' | 'foreign'>('all');
   const [selectedProvince, setSelectedProvince] = useState('All Island');
   const [selectedForeignRegion, setSelectedForeignRegion] =
     useState('All Foreign');
+
+  // Search Bar Filter & Sort States
+  const [selectedSalary, setSelectedSalary] = useState('all');
+  const [selectedDate, setSelectedDate] = useState('all');
+  const [selectedWorkplace, setSelectedWorkplace] = useState('All');
+  const [sortBy, setSortBy] = useState<'newest' | 'salary' | 'closing'>(
+    'newest'
+  );
 
   const t = useTranslations('Homepage');
   const router = useRouter();
@@ -92,7 +244,7 @@ export default function Homepage() {
   const accentText = 'text-[#29AAE3]';
   const accentBtn = 'bg-[#29AAE3] hover:bg-[#1E8EC2] text-white';
 
-  // Mock Job Data (Sri Lankan + Foreign Context)
+  // Mock Job Data (Sri Lankan + Foreign Context with Salary & Date fields)
   const mockJobs = [
     {
       id: 1,
@@ -106,7 +258,11 @@ export default function Homepage() {
       workplace: 'Hybrid',
       status: 'Urgently hiring',
       location: 'Colombo, Sri Lanka',
+      salaryMin: 250000,
+      salaryLabel: 'LKR 250,000 - 350,000',
+      postedDaysAgo: 0,
       closingDate: 'Nov 30, 2026',
+      closingTimestamp: new Date('2026-11-30').getTime(),
       posted: 'Posted 5 mins ago',
       hasPdfForm: false,
       bullets: [
@@ -128,7 +284,11 @@ export default function Homepage() {
       workplace: 'On-Site',
       status: '15 Vacancies',
       location: 'All Island, Sri Lanka',
+      salaryMin: 95000,
+      salaryLabel: 'Government Salary Scale',
+      postedDaysAgo: 0,
       closingDate: 'Dec 15, 2026',
+      closingTimestamp: new Date('2026-12-15').getTime(),
       posted: 'Posted 1 hour ago',
       hasPdfForm: true,
       bullets: [
@@ -150,7 +310,11 @@ export default function Homepage() {
       workplace: 'On-Site',
       status: 'Foreign • Visa Provided',
       location: 'Dubai, UAE',
+      salaryMin: 360000,
+      salaryLabel: 'AED 4,500 (~LKR 360k)',
+      postedDaysAgo: 0,
       closingDate: 'Dec 22, 2026',
+      closingTimestamp: new Date('2026-12-22').getTime(),
       posted: 'Posted 2 hours ago',
       hasPdfForm: true,
       bullets: [
@@ -172,7 +336,11 @@ export default function Homepage() {
       workplace: 'Remote',
       status: 'LKR 300,000 - 500,000',
       location: 'Colombo, Sri Lanka',
+      salaryMin: 350000,
+      salaryLabel: 'LKR 300,000 - 500,000',
+      postedDaysAgo: 0,
       closingDate: 'Dec 20, 2026',
+      closingTimestamp: new Date('2026-12-20').getTime(),
       posted: 'Posted 3 hours ago',
       hasPdfForm: false,
       bullets: [
@@ -194,8 +362,12 @@ export default function Homepage() {
       workplace: 'On-Site',
       status: 'Foreign • High Salary',
       location: 'Osaka, Japan',
+      salaryMin: 420000,
+      salaryLabel: 'JPY 210,000 (~LKR 420k)',
+      postedDaysAgo: 1,
       closingDate: 'Dec 28, 2026',
-      posted: 'Posted 5 hours ago',
+      closingTimestamp: new Date('2026-12-28').getTime(),
+      posted: 'Posted 1 day ago',
       hasPdfForm: false,
       bullets: [
         'Specified Skilled Worker (SSW) pathway with Japanese language training support.',
@@ -216,8 +388,12 @@ export default function Homepage() {
       workplace: 'On-Site',
       status: 'LKR 100,000 - 150,000',
       location: 'Kandy, Sri Lanka',
+      salaryMin: 120000,
+      salaryLabel: 'LKR 100,000 - 150,000',
+      postedDaysAgo: 3,
       closingDate: 'Dec 05, 2026',
-      posted: 'Posted 1 day ago',
+      closingTimestamp: new Date('2026-12-05').getTime(),
+      posted: 'Posted 3 days ago',
       hasPdfForm: false,
       bullets: [
         'Execute regional e-commerce marketing campaigns across the Central Province.',
@@ -238,8 +414,12 @@ export default function Homepage() {
       workplace: 'Hybrid',
       status: 'Paid Internship',
       location: 'Galle, Sri Lanka',
+      salaryMin: 60000,
+      salaryLabel: 'LKR 60,000 Allowance',
+      postedDaysAgo: 10,
       closingDate: 'Dec 18, 2026',
-      posted: 'Posted 2 days ago',
+      closingTimestamp: new Date('2026-12-18').getTime(),
+      posted: 'Posted 10 days ago',
       hasPdfForm: false,
       bullets: [
         'Work alongside senior engineers on open-source cloud and API platforms.',
@@ -260,9 +440,9 @@ export default function Homepage() {
     }
   };
 
-  // Real-time Filtering Logic
+  // Real-time Filtering + Sorting Logic
   const filteredJobs = useMemo(() => {
-    return mockJobs.filter((job) => {
+    const list = mockJobs.filter((job) => {
       const matchesSearch =
         job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         job.company.toLowerCase().includes(searchQuery.toLowerCase());
@@ -292,15 +472,40 @@ export default function Homepage() {
         selectedForeignRegion === 'All Foreign' ||
         job.region === selectedForeignRegion;
 
+      const matchesSalary =
+        selectedSalary === 'all' ||
+        (selectedSalary === 'under_150' && job.salaryMin < 150000) ||
+        (selectedSalary === '150_300' &&
+          job.salaryMin >= 150000 &&
+          job.salaryMin <= 300000) ||
+        (selectedSalary === 'above_300' && job.salaryMin > 300000);
+
+      const matchesDate =
+        selectedDate === 'all' || job.postedDaysAgo <= Number(selectedDate);
+
+      const matchesWorkplace =
+        selectedWorkplace === 'All' || job.workplace === selectedWorkplace;
+
       return (
         matchesSearch &&
         matchesLocation &&
         matchesSector &&
         matchesScope &&
         matchesLocalProvince &&
-        matchesForeignRegion
+        matchesForeignRegion &&
+        matchesSalary &&
+        matchesDate &&
+        matchesWorkplace
       );
     });
+
+    if (sortBy === 'salary') {
+      return [...list].sort((a, b) => b.salaryMin - a.salaryMin);
+    }
+    if (sortBy === 'closing') {
+      return [...list].sort((a, b) => a.closingTimestamp - b.closingTimestamp);
+    }
+    return [...list].sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
   }, [
     searchQuery,
     locationQuery,
@@ -308,6 +513,10 @@ export default function Homepage() {
     jobScope,
     selectedProvince,
     selectedForeignRegion,
+    selectedSalary,
+    selectedDate,
+    selectedWorkplace,
+    sortBy,
   ]);
 
   const clearAllFilters = () => {
@@ -317,7 +526,16 @@ export default function Homepage() {
     setJobScope('all');
     setSelectedProvince('All Island');
     setSelectedForeignRegion('All Foreign');
+    setSelectedSalary('all');
+    setSelectedDate('all');
+    setSelectedWorkplace('All');
+    setSortBy('newest');
   };
+
+  const hasActiveSearchFilters =
+    selectedSalary !== 'all' ||
+    selectedDate !== 'all' ||
+    selectedWorkplace !== 'All';
 
   // Inline Metadata Strip
   const renderMetaRow = (job: (typeof mockJobs)[0]) => (
@@ -351,6 +569,11 @@ export default function Homepage() {
           <MapPin className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
         )}
         <span>{job.location}</span>
+      </span>
+
+      <span className="inline-flex items-center gap-1.5">
+        <Banknote className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
+        <span>{job.salaryLabel}</span>
       </span>
     </div>
   );
@@ -435,7 +658,7 @@ export default function Homepage() {
       {/* Main Content Area */}
       <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 sm:py-9">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-10 items-start">
-          {/* Left Sidebar Filters */}
+          {/* Left Sidebar Filters (Clean: Destination, Category, Location) */}
           <motion.aside
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -606,60 +829,107 @@ export default function Homepage() {
 
           {/* Right Content Area */}
           <div className="lg:col-span-3 min-w-0">
-            {/* Search Bar */}
+            {/* Search Bar + Custom Animated Filter Dropdowns */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className={`flex flex-col md:flex-row w-full ${cardBg} border rounded-2xl p-2 mb-5 sm:mb-6 shadow-xs transition-colors duration-300`}
+              className={`w-full ${cardBg} border rounded-2xl p-2 sm:p-2.5 mb-5 sm:mb-6 shadow-xs transition-colors duration-300 relative z-30`}
             >
+              {/* Top Row: Keyword + Location + Find Jobs Button */}
+              <div className="flex flex-col md:flex-row w-full">
+                <div
+                  className={`flex-1 flex items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b md:border-b-0 md:border-r ${
+                    isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80'
+                  }`}
+                >
+                  <Search
+                    className={`w-5 h-5 mr-2.5 sm:mr-3 flex-shrink-0 ${textMuted}`}
+                  />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Job title, keywords, or company"
+                    className={`w-full text-sm sm:text-base outline-none bg-transparent ${textMain} placeholder-zinc-400`}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="text-zinc-400 hover:text-zinc-600 cursor-pointer ml-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex-1 flex items-center px-3 sm:px-4 py-2.5 sm:py-3">
+                  <Globe
+                    className={`w-5 h-5 mr-2.5 sm:mr-3 flex-shrink-0 ${accentText}`}
+                  />
+                  <input
+                    type="text"
+                    value={locationQuery}
+                    onChange={(e) => setLocationQuery(e.target.value)}
+                    placeholder="City, Province, or Country (e.g. Dubai, Japan)"
+                    className={`w-full text-sm sm:text-base outline-none bg-transparent ${textMain} placeholder-zinc-400`}
+                  />
+                </div>
+
+                <button
+                  className={`${accentBtn} w-full md:w-auto px-6 sm:px-8 py-3 rounded-xl font-medium text-sm sm:text-base md:m-1 transition-all shadow-xs cursor-pointer flex-shrink-0`}
+                >
+                  Find jobs
+                </button>
+              </div>
+
+              {/* Bottom Row inside Search Bar: Custom Dropdowns for Salary, Date Posted, Work Mode */}
               <div
-                className={`flex-1 flex items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b md:border-b-0 md:border-r ${
-                  isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80'
+                className={`mt-2 pt-2.5 px-1.5 sm:px-2 border-t flex flex-wrap items-center gap-2 ${
+                  isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
                 }`}
               >
-                <Search
-                  className={`w-5 h-5 mr-2.5 sm:mr-3 flex-shrink-0 ${textMuted}`}
+                <FilterDropdown
+                  icon={<Banknote className="w-4 h-4" />}
+                  value={selectedSalary}
+                  options={SALARY_RANGES}
+                  onChange={setSelectedSalary}
+                  isDarkMode={isDarkMode}
                 />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Job title, keywords, or company"
-                  className={`w-full text-sm sm:text-base outline-none bg-transparent ${textMain} placeholder-zinc-400`}
+
+                <FilterDropdown
+                  icon={<Clock className="w-4 h-4" />}
+                  value={selectedDate}
+                  options={DATE_FILTERS}
+                  onChange={setSelectedDate}
+                  isDarkMode={isDarkMode}
                 />
-                {searchQuery && (
+
+                <FilterDropdown
+                  icon={<Monitor className="w-4 h-4" />}
+                  value={selectedWorkplace}
+                  options={WORKPLACE_OPTIONS}
+                  onChange={setSelectedWorkplace}
+                  isDarkMode={isDarkMode}
+                />
+
+                {hasActiveSearchFilters && (
                   <button
-                    onClick={() => setSearchQuery('')}
-                    className="text-zinc-400 hover:text-zinc-600 cursor-pointer ml-1"
+                    onClick={() => {
+                      setSelectedSalary('all');
+                      setSelectedDate('all');
+                      setSelectedWorkplace('All');
+                    }}
+                    className="text-xs font-semibold text-rose-500 hover:underline px-2 py-1 cursor-pointer ml-auto"
                   >
-                    <X className="w-4 h-4" />
+                    Reset
                   </button>
                 )}
               </div>
-
-              <div className="flex-1 flex items-center px-3 sm:px-4 py-2.5 sm:py-3">
-                <Globe
-                  className={`w-5 h-5 mr-2.5 sm:mr-3 flex-shrink-0 ${accentText}`}
-                />
-                <input
-                  type="text"
-                  value={locationQuery}
-                  onChange={(e) => setLocationQuery(e.target.value)}
-                  placeholder="City, Province, or Country (e.g. Dubai, Japan)"
-                  className={`w-full text-sm sm:text-base outline-none bg-transparent ${textMain} placeholder-zinc-400`}
-                />
-              </div>
-
-              <button
-                className={`${accentBtn} w-full md:w-auto px-6 sm:px-8 py-3 rounded-xl font-medium text-sm sm:text-base md:m-1 transition-all shadow-xs cursor-pointer flex-shrink-0`}
-              >
-                Find jobs
-              </button>
             </motion.div>
 
-            {/* Results Count + Card/List View Switcher */}
-            <div className="flex items-center justify-between gap-3 mb-5">
+            {/* Results Count + Custom Sort Dropdown + Card/List View Switcher */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-5 relative z-20">
               <div className={`font-medium text-sm sm:text-base ${textMuted}`}>
                 <span className={`font-bold ${accentText}`}>
                   {filteredJobs.length}
@@ -671,36 +941,50 @@ export default function Homepage() {
                   : 'Jobs found (Sri Lanka & Foreign)'}
               </div>
 
-              {/* View Mode Switcher */}
-              <div
-                className={`inline-flex items-center p-1 rounded-xl border flex-shrink-0 ${cardBg}`}
-              >
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                    viewMode === 'list'
-                      ? isDarkMode
-                        ? 'bg-white text-[#1A1A1A] shadow-xs'
-                        : 'bg-[#1A1A1A] text-white shadow-xs'
-                      : `${textMuted} hover:${textMain}`
-                  }`}
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {/* Custom Sort Dropdown */}
+                <FilterDropdown
+                  icon={<ArrowUpDown className="w-3.5 h-3.5" />}
+                  value={sortBy}
+                  options={SORT_OPTIONS}
+                  onChange={(val) =>
+                    setSortBy(val as 'newest' | 'salary' | 'closing')
+                  }
+                  isDarkMode={isDarkMode}
+                  align="right"
+                />
+
+                {/* View Mode Switcher */}
+                <div
+                  className={`inline-flex items-center p-1 rounded-xl border flex-shrink-0 ${cardBg}`}
                 >
-                  <List className="w-4 h-4" />
-                  List
-                </button>
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-                    viewMode === 'grid'
-                      ? isDarkMode
-                        ? 'bg-white text-[#1A1A1A] shadow-xs'
-                        : 'bg-[#1A1A1A] text-white shadow-xs'
-                      : `${textMuted} hover:${textMain}`
-                  }`}
-                >
-                  <LayoutGrid className="w-4 h-4" />
-                  Cards
-                </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                      viewMode === 'list'
+                        ? isDarkMode
+                          ? 'bg-white text-[#1A1A1A] shadow-xs'
+                          : 'bg-[#1A1A1A] text-white shadow-xs'
+                        : `${textMuted} hover:${textMain}`
+                    }`}
+                  >
+                    <List className="w-4 h-4" />
+                    List
+                  </button>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
+                      viewMode === 'grid'
+                        ? isDarkMode
+                          ? 'bg-white text-[#1A1A1A] shadow-xs'
+                          : 'bg-[#1A1A1A] text-white shadow-xs'
+                        : `${textMuted} hover:${textMain}`
+                    }`}
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                    Cards
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -727,7 +1011,7 @@ export default function Homepage() {
             ) : viewMode === 'list' ? (
               /* LIST VIEW */
               <motion.div
-                key={`list-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}`}
+                key={`list-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
@@ -825,7 +1109,7 @@ export default function Homepage() {
             ) : (
               /* CARD (GRID) VIEW */
               <motion.div
-                key={`grid-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}`}
+                key={`grid-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
