@@ -395,7 +395,7 @@ function JobDetailsContent() {
     >
       <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
-      <main className="max-w-[1100px] mx-auto px-4 sm:px-6 py-6 sm:py-9">
+      <main className="max-w-[1100px] mx-auto px-4 sm:px-6 pt-6 pb-28 md:py-9">
         {/* Back Button */}
         <button
           onClick={() => router.back()}
@@ -421,20 +421,22 @@ function JobDetailsContent() {
 
               <div>
                 <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                 <span
-  className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-medium leading-none ${
-    isDarkMode
-      ? 'bg-zinc-900/90 text-zinc-200 border border-zinc-800/80'
-      : 'bg-[#F1F4F8] text-[#475569]'
-  }`}
->
-  <span
-    className={`h-2 w-2 rounded-full flex-shrink-0 ${
-      job.status === 'Urgently hiring' ? 'bg-rose-400' : 'bg-[#7EC8EE]'
-    }`}
-  />
-  <span>{job.status}</span>
-</span>
+                  <span
+                    className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-medium leading-none ${
+                      isDarkMode
+                        ? 'bg-zinc-900/90 text-zinc-200 border border-zinc-800/80'
+                        : 'bg-[#F1F4F8] text-[#475569]'
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full flex-shrink-0 ${
+                        job.status === 'Urgently hiring'
+                          ? 'bg-rose-400'
+                          : 'bg-[#7EC8EE]'
+                      }`}
+                    />
+                    <span>{job.status}</span>
+                  </span>
                   <span className={`text-xs ${textMuted}`}>{job.posted}</span>
                 </div>
 
@@ -479,11 +481,11 @@ function JobDetailsContent() {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row md:flex-col gap-3 flex-shrink-0 w-full md:w-auto">
+            {/* Desktop Action Buttons (Hidden on Mobile — shown in bottom sticky bar on mobile) */}
+            <div className="hidden md:flex flex-col gap-3 flex-shrink-0">
               <button
                 onClick={() => setApplyModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold text-sm sm:text-base transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold text-base transition-colors cursor-pointer"
               >
                 <Send className="w-4 h-4" />
                 Apply Online
@@ -659,6 +661,40 @@ function JobDetailsContent() {
           </div>
         </div>
       </main>
+
+      {/* Mobile Sticky Bottom Action Bar */}
+      <div
+        className={`fixed bottom-0 left-0 right-0 z-40 md:hidden border-t backdrop-blur-md px-4 py-3 ${
+          isDarkMode
+            ? 'bg-[#1A1A1A]/95 border-zinc-800'
+            : 'bg-white/95 border-zinc-200'
+        }`}
+      >
+        <div className="flex items-center gap-2.5 max-w-[1100px] mx-auto">
+          {job.hasPdfForm && (
+            <button
+              onClick={handleDownloadPdf}
+              className={`inline-flex items-center justify-center gap-1.5 px-4 py-3 rounded-xl border font-semibold text-sm flex-shrink-0 cursor-pointer ${
+                isDarkMode
+                  ? 'border-zinc-700 text-zinc-200 hover:bg-white/5'
+                  : 'border-zinc-200 text-zinc-800 hover:bg-zinc-50'
+              }`}
+              aria-label="Download PDF form"
+            >
+              <Download className="w-4 h-4 text-[#29AAE3]" />
+              PDF
+            </button>
+          )}
+
+          <button
+            onClick={() => setApplyModalOpen(true)}
+            className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold text-sm transition-colors cursor-pointer"
+          >
+            <Send className="w-4 h-4" />
+            Apply Online
+          </button>
+        </div>
+      </div>
 
       {/* Full-Screen Flyer Zoom Lightbox Modal */}
       <AnimatePresence>
