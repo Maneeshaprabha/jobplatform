@@ -196,12 +196,10 @@ export default function CompaniesPage() {
     setMounted(true);
   }, []);
 
-  const bgClass = isDarkMode ? 'bg-[#121212]' : 'bg-[#F8FAFC]';
+  const bgClass = isDarkMode ? 'bg-[#121212]' : 'bg-white';
   const textMain = isDarkMode ? 'text-zinc-100' : 'text-zinc-900';
   const textMuted = isDarkMode ? 'text-zinc-400' : 'text-zinc-500';
-  const surfaceBg = isDarkMode
-    ? 'bg-[#1A1A1A] border-zinc-800'
-    : 'bg-white border-zinc-200/80';
+  const borderSubtle = isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80';
 
   const filteredCompanies = useMemo(() => {
     return MOCK_COMPANIES.filter((company) => {
@@ -242,31 +240,29 @@ export default function CompaniesPage() {
     >
       <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
-      <main className="max-w-[1150px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
-        {/* Page Header */}
-        <div className="mb-6">
+      <main className="max-w-[1040px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        {/* Clean Editorial Page Header */}
+        <div className="mb-7">
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             Companies
           </h1>
-          <p className={`text-sm sm:text-base mt-1 ${textMuted}`}>
+          <p className={`text-sm sm:text-[15px] mt-1.5 ${textMuted}`}>
             Browse hiring companies and available vacancies.
           </p>
         </div>
 
-        {/* Search & Filter Bar */}
-        <div
-          className={`${surfaceBg} border rounded-2xl p-3 sm:p-4 shadow-xs mb-6 space-y-3`}
-        >
+        {/* Flat Search & Filter Section (No heavy outer box) */}
+        <div className="mb-7 space-y-3.5">
           <div className="flex flex-col md:flex-row gap-3">
             {/* Search Input */}
             <div
-              className={`flex-1 flex items-center px-3.5 py-2.5 rounded-xl border ${
+              className={`flex-1 flex items-center px-3.5 py-2.5 sm:py-3 rounded-xl border transition-colors ${
                 isDarkMode
-                  ? 'bg-[#121212] border-zinc-800'
-                  : 'bg-zinc-50 border-zinc-200/80'
+                  ? 'bg-[#1A1A1A] border-zinc-800 focus-within:border-[#29AAE3]'
+                  : 'bg-white border-zinc-200 focus-within:border-[#29AAE3]'
               }`}
             >
-              <Search className={`w-4 h-4 mr-2.5 flex-shrink-0 ${textMuted}`} />
+              <Search className="w-4 h-4 mr-2.5 flex-shrink-0 text-zinc-400" />
               <input
                 type="text"
                 value={searchQuery}
@@ -278,6 +274,7 @@ export default function CompaniesPage() {
                 <button
                   onClick={() => setSearchQuery('')}
                   className="text-zinc-400 hover:text-zinc-600 cursor-pointer ml-1"
+                  aria-label="Clear search"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -288,8 +285,8 @@ export default function CompaniesPage() {
             <div
               className={`grid grid-cols-3 p-1 rounded-xl border flex-shrink-0 ${
                 isDarkMode
-                  ? 'bg-[#121212] border-zinc-800'
-                  : 'bg-zinc-100/80 border-zinc-200/80'
+                  ? 'bg-[#1A1A1A] border-zinc-800'
+                  : 'bg-zinc-50 border-zinc-200/80'
               }`}
             >
               {[
@@ -318,7 +315,7 @@ export default function CompaniesPage() {
           </div>
 
           {/* Industry Pills + Verified Toggle */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
               {INDUSTRIES.map((ind) => {
                 const active = selectedIndustry === ind.id;
@@ -326,14 +323,14 @@ export default function CompaniesPage() {
                   <button
                     key={ind.id}
                     onClick={() => setSelectedIndustry(ind.id)}
-                    className={`whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer flex-shrink-0 ${
+                    className={`whitespace-nowrap px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-medium transition-all cursor-pointer flex-shrink-0 ${
                       active
                         ? isDarkMode
                           ? 'bg-white text-[#1A1A1A] font-semibold'
                           : 'bg-[#1A1A1A] text-white font-semibold'
                         : isDarkMode
-                        ? 'bg-[#121212] text-zinc-300 border border-zinc-800 hover:bg-zinc-800'
-                        : 'bg-zinc-50 text-zinc-700 border border-zinc-200/80 hover:bg-zinc-100'
+                        ? 'bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-zinc-800'
+                        : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50'
                     }`}
                   >
                     {ind.label}
@@ -345,12 +342,12 @@ export default function CompaniesPage() {
             <button
               type="button"
               onClick={() => setVerifiedOnly((prev) => !prev)}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border text-xs font-semibold transition-all cursor-pointer ${
                 verifiedOnly
-                  ? 'bg-[#29AAE3]/15 border-[#29AAE3]/50 text-[#29AAE3]'
+                  ? 'bg-[#29AAE3]/10 border-[#29AAE3]/50 text-[#29AAE3]'
                   : isDarkMode
-                  ? 'bg-[#121212] border-zinc-800 text-zinc-300'
-                  : 'bg-zinc-50 border-zinc-200/80 text-zinc-700'
+                  ? 'bg-[#1A1A1A] border-zinc-800 text-zinc-300'
+                  : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
               }`}
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
@@ -360,43 +357,43 @@ export default function CompaniesPage() {
         </div>
 
         {/* Results Count */}
-        <div className={`text-sm font-medium mb-4 ${textMuted}`}>
+        <div className={`text-xs sm:text-sm font-medium mb-3 ${textMuted}`}>
           Showing{' '}
-          <span className="font-bold text-[#29AAE3]">
+          <span className="font-semibold text-[#29AAE3]">
             {filteredCompanies.length}
           </span>{' '}
           companies
         </div>
 
-        {/* Clean Company Name List */}
+        {/* Clean Minimal Company List (Matching /companies/[slug] editorial rows) */}
         {filteredCompanies.length === 0 ? (
-          <div
-            className={`${surfaceBg} border rounded-2xl p-10 text-center shadow-xs`}
-          >
+          <div className={`py-14 text-center border-t ${borderSubtle}`}>
             <Building2 className="w-10 h-10 text-zinc-400 mx-auto mb-2.5" />
-            <h3 className="text-base font-bold mb-1">No companies found</h3>
+            <h3 className="text-base font-semibold mb-1">No companies found</h3>
             <p className={`text-sm mb-4 ${textMuted}`}>
               Try adjusting your search or resetting the filters.
             </p>
             <button
               onClick={clearFilters}
-              className="px-5 py-2 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white text-sm font-semibold cursor-pointer"
+              className="px-5 py-2 rounded-lg bg-[#29AAE3] hover:bg-[#1E8EC2] text-white text-sm font-semibold cursor-pointer"
             >
               Reset Filters
             </button>
           </div>
         ) : (
           <div
-            className={`${surfaceBg} border rounded-2xl overflow-hidden divide-y shadow-xs ${
-              isDarkMode ? 'divide-zinc-800' : 'divide-zinc-200/80'
+            className={`divide-y border-t border-b ${
+              isDarkMode
+                ? 'divide-zinc-800/90 border-zinc-800/90'
+                : 'divide-zinc-200/80 border-zinc-200/80'
             }`}
           >
             {filteredCompanies.map((company) => (
               <div
                 key={company.slug}
                 onClick={() => router.push(`/companies/${company.slug}`)}
-                className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-4 sm:px-6 py-4 transition-colors cursor-pointer ${
-                  isDarkMode ? 'hover:bg-white/[0.03]' : 'hover:bg-zinc-50/90'
+                className={`group flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 py-4 sm:py-5 px-2 -mx-2 rounded-xl transition-colors cursor-pointer ${
+                  isDarkMode ? 'hover:bg-white/[0.02]' : 'hover:bg-zinc-50/70'
                 }`}
               >
                 {/* Left: Logo + Company Name + Location & Employee Size */}
@@ -422,17 +419,17 @@ export default function CompaniesPage() {
                     </div>
 
                     <div
-                      className={`flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs ${textMuted}`}
+                      className={`flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-xs sm:text-[13px] ${textMuted}`}
                     >
-                      <span className="inline-flex items-center gap-1">
+                      <span className="inline-flex items-center gap-1.5">
                         {company.isForeign ? (
-                          <Globe className="w-3.5 h-3.5 text-[#29AAE3]" />
+                          <Globe className="w-3.5 h-3.5 text-zinc-400" />
                         ) : (
-                          <MapPin className="w-3.5 h-3.5 text-[#29AAE3]" />
+                          <MapPin className="w-3.5 h-3.5 text-zinc-400" />
                         )}
                         {company.location}
                       </span>
-                      <span className="inline-flex items-center gap-1">
+                      <span className="inline-flex items-center gap-1.5">
                         <Users className="w-3.5 h-3.5 text-zinc-400" />
                         {company.size}
                       </span>
@@ -440,8 +437,8 @@ export default function CompaniesPage() {
                   </div>
                 </div>
 
-                {/* Right: Available Vacancies Pill + View Link */}
-                <div className="flex items-center justify-between sm:justify-end gap-4 flex-shrink-0 pl-[54px] sm:pl-0">
+                {/* Right: Available Vacancies Pill + View Button */}
+                <div className="flex items-center justify-between sm:justify-end gap-3.5 flex-shrink-0 pl-[54px] sm:pl-0">
                   <span
                     className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
                       isDarkMode
@@ -454,7 +451,13 @@ export default function CompaniesPage() {
                     {company.openJobsCount === 1 ? 'Vacancy' : 'Vacancies'}
                   </span>
 
-                  <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#29AAE3] group-hover:underline">
+                  <span
+                    className={`inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg border text-xs sm:text-sm font-medium transition-all ${
+                      isDarkMode
+                        ? 'border-zinc-700 text-zinc-200 group-hover:bg-[#29AAE3] group-hover:border-[#29AAE3] group-hover:text-white'
+                        : 'border-zinc-200 text-zinc-700 bg-white group-hover:bg-[#29AAE3] group-hover:border-[#29AAE3] group-hover:text-white'
+                    }`}
+                  >
                     <Briefcase className="w-3.5 h-3.5" />
                     View
                     <ArrowUpRight className="w-3.5 h-3.5" />
