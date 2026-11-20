@@ -57,7 +57,7 @@ const SECTORS = [
   { id: 'internship', label: 'Internships' },
 ];
 
-const SALARY_RANGES = [
+const SALARY_PRESETS = [
   { id: 'all', label: 'Any Salary' },
   { id: 'under_150', label: 'Under LKR 150k' },
   { id: '150_300', label: 'LKR 150k – 300k' },
@@ -83,6 +83,16 @@ const SORT_OPTIONS = [
   { id: 'salary', label: 'Highest Salary' },
   { id: 'closing', label: 'Closing Soon' },
 ];
+
+const formatShortLkr = (val: string) => {
+  const num = Number(val);
+  if (!num || Number.isNaN(num)) return '';
+  if (num >= 1000) {
+    const k = num / 1000;
+    return `${Number.isInteger(k) ? k : k.toFixed(1)}k`;
+  }
+  return String(num);
+};
 
 interface DropdownOption {
   id: string;
@@ -198,6 +208,206 @@ function FilterDropdown({
   );
 }
 
+interface SalaryDropdownProps {
+  selectedPreset: string;
+  minSalary: string;
+  maxSalary: string;
+  onPresetChange: (preset: string) => void;
+  onMinChange: (val: string) => void;
+  onMaxChange: (val: string) => void;
+  isDarkMode: boolean;
+}
+
+function SalaryDropdown({
+  selectedPreset,
+  minSalary,
+  maxSalary,
+  onPresetChange,
+  onMinChange,
+  onMaxChange,
+  isDarkMode,
+}: SalaryDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const hasCustom = minSalary.trim() !== '' || maxSalary.trim() !== '';
+  const isFiltered = selectedPreset !== 'all' || hasCustom;
+
+  const buttonLabel = useMemo(() => {
+    if (hasCustom) {
+      const minText = formatShortLkr(minSalary);
+      const maxText = formatShortLkr(maxSalary);
+      if (minText && maxText) return `LKR ${minText} – ${maxText}`;
+      if (minText) return `LKR ${minText}+`;
+      if (maxText) return `Up to LKR ${maxText}`;
+    }
+    return (
+      SALARY_PRESETS.find((p) => p.id === selectedPreset)?.label || 'Any Salary'
+    );
+  }, [hasCustom, minSalary, maxSalary, selectedPreset]);
+
+  return (
+    <div ref={dropdownRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+          isFiltered
+            ? isDarkMode
+              ? 'bg-[#29AAE3]/15 border-[#29AAE3]/50 text-zinc-100'
+              : 'bg-[#29AAE3]/10 border-[#29AAE3]/40 text-zinc-900'
+            : isDarkMode
+            ? 'bg-[#121212] border-zinc-800 text-zinc-200 hover:border-zinc-700'
+            : 'bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
+        }`}
+      >
+        <Banknote className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
+        <span className="whitespace-nowrap">{buttonLabel}</span>
+        <ChevronDown
+          className={`w-3.5 h-3.5 transition-transform duration-200 ${
+            open ? 'rotate-180 text-[#29AAE3]' : 'text-zinc-400'
+          }`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className={`absolute left-0 z-50 mt-2 w-[260px] sm:w-[280px] rounded-xl border p-2.5 shadow-xl ${
+              isDarkMode
+                ? 'bg-[#1A1A1A] border-zinc-800 shadow-black/60'
+                : 'bg-white border-zinc-200/90 shadow-zinc-200/70'
+            }`}
+          >
+            {/* Quick Presets */}
+            <div className="space-y-0.5 mb-2.5">
+              {SALARY_PRESETS.map((opt) => {
+                const active = !hasCustom && opt.id === selectedPreset;
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      onMinChange('');
+                      onMaxChange('');
+                      onPresetChange(opt.id);
+                      setOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors cursor-pointer text-left ${
+                      active
+                        ? isDarkMode
+                          ? 'bg-[#29AAE3]/15 text-[#29AAE3] font-semibold'
+                          : 'bg-[#29AAE3]/10 text-[#29AAE3] font-semibold'
+                        : isDarkMode
+                        ? 'text-zinc-300 hover:bg-white/5'
+                        : 'text-zinc-700 hover:bg-zinc-100/80'
+                    }`}
+                  >
+                    <span>{opt.label}</span>
+                    {active && <Check className="w-3.5 h-3.5 flex-shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Custom Min / Max Range Inputs */}
+            <div
+              className={`pt-2.5 border-t ${
+                isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
+              }`}
+            >
+              <p
+                className={`text-[11px] font-semibold uppercase tracking-wider mb-2 ${
+                  isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
+                }`}
+              >
+                Custom Range (LKR)
+              </p>
+
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  type="number"
+                  min={0}
+                  step={10000}
+                  value={minSalary}
+                  onChange={(e) => {
+                    onPresetChange('all');
+                    onMinChange(e.target.value);
+                  }}
+                  placeholder="Min (e.g. 100000)"
+                  className={`w-full px-2.5 py-2 rounded-lg border text-xs outline-none transition-colors ${
+                    isDarkMode
+                      ? 'bg-[#121212] border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:border-[#29AAE3]'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-[#29AAE3]'
+                  }`}
+                />
+                <input
+                  type="number"
+                  min={0}
+                  step={10000}
+                  value={maxSalary}
+                  onChange={(e) => {
+                    onPresetChange('all');
+                    onMaxChange(e.target.value);
+                  }}
+                  placeholder="Max (e.g. 350000)"
+                  className={`w-full px-2.5 py-2 rounded-lg border text-xs outline-none transition-colors ${
+                    isDarkMode
+                      ? 'bg-[#121212] border-zinc-800 text-zinc-100 placeholder-zinc-500 focus:border-[#29AAE3]'
+                      : 'bg-zinc-50 border-zinc-200 text-zinc-900 placeholder-zinc-400 focus:border-[#29AAE3]'
+                  }`}
+                />
+              </div>
+
+              <div className="flex items-center justify-between gap-2 mt-2.5">
+                {hasCustom ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onMinChange('');
+                      onMaxChange('');
+                    }}
+                    className="text-xs font-semibold text-rose-500 hover:underline cursor-pointer"
+                  >
+                    Clear
+                  </button>
+                ) : (
+                  <span />
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="px-3.5 py-1.5 rounded-lg bg-[#29AAE3] hover:bg-[#1E8EC2] text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 export default function Homepage() {
   const [mounted, setMounted] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -216,6 +426,8 @@ export default function Homepage() {
 
   // Search Bar Filter & Sort States
   const [selectedSalary, setSelectedSalary] = useState('all');
+  const [minSalary, setMinSalary] = useState('');
+  const [maxSalary, setMaxSalary] = useState('');
   const [selectedDate, setSelectedDate] = useState('all');
   const [selectedWorkplace, setSelectedWorkplace] = useState('All');
   const [sortBy, setSortBy] = useState<'newest' | 'salary' | 'closing'>(
@@ -442,6 +654,10 @@ export default function Homepage() {
 
   // Real-time Filtering + Sorting Logic
   const filteredJobs = useMemo(() => {
+    const minVal = minSalary.trim() !== '' ? Number(minSalary) : null;
+    const maxVal = maxSalary.trim() !== '' ? Number(maxSalary) : null;
+    const hasCustomSalary = minVal !== null || maxVal !== null;
+
     const list = mockJobs.filter((job) => {
       const matchesSearch =
         job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -472,13 +688,15 @@ export default function Homepage() {
         selectedForeignRegion === 'All Foreign' ||
         job.region === selectedForeignRegion;
 
-      const matchesSalary =
-        selectedSalary === 'all' ||
-        (selectedSalary === 'under_150' && job.salaryMin < 150000) ||
-        (selectedSalary === '150_300' &&
-          job.salaryMin >= 150000 &&
-          job.salaryMin <= 300000) ||
-        (selectedSalary === 'above_300' && job.salaryMin > 300000);
+      const matchesSalary = hasCustomSalary
+        ? (minVal === null || job.salaryMin >= minVal) &&
+          (maxVal === null || job.salaryMin <= maxVal)
+        : selectedSalary === 'all' ||
+          (selectedSalary === 'under_150' && job.salaryMin < 150000) ||
+          (selectedSalary === '150_300' &&
+            job.salaryMin >= 150000 &&
+            job.salaryMin <= 300000) ||
+          (selectedSalary === 'above_300' && job.salaryMin > 300000);
 
       const matchesDate =
         selectedDate === 'all' || job.postedDaysAgo <= Number(selectedDate);
@@ -514,6 +732,8 @@ export default function Homepage() {
     selectedProvince,
     selectedForeignRegion,
     selectedSalary,
+    minSalary,
+    maxSalary,
     selectedDate,
     selectedWorkplace,
     sortBy,
@@ -527,6 +747,8 @@ export default function Homepage() {
     setSelectedProvince('All Island');
     setSelectedForeignRegion('All Foreign');
     setSelectedSalary('all');
+    setMinSalary('');
+    setMaxSalary('');
     setSelectedDate('all');
     setSelectedWorkplace('All');
     setSortBy('newest');
@@ -534,6 +756,8 @@ export default function Homepage() {
 
   const hasActiveSearchFilters =
     selectedSalary !== 'all' ||
+    minSalary.trim() !== '' ||
+    maxSalary.trim() !== '' ||
     selectedDate !== 'all' ||
     selectedWorkplace !== 'All';
 
@@ -883,17 +1107,19 @@ export default function Homepage() {
                 </button>
               </div>
 
-              {/* Bottom Row inside Search Bar: Custom Dropdowns for Salary, Date Posted, Work Mode */}
+              {/* Bottom Row inside Search Bar: Custom Salary Range, Date Posted, Work Mode */}
               <div
                 className={`mt-2 pt-2.5 px-1.5 sm:px-2 border-t flex flex-wrap items-center gap-2 ${
                   isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
                 }`}
               >
-                <FilterDropdown
-                  icon={<Banknote className="w-4 h-4" />}
-                  value={selectedSalary}
-                  options={SALARY_RANGES}
-                  onChange={setSelectedSalary}
+                <SalaryDropdown
+                  selectedPreset={selectedSalary}
+                  minSalary={minSalary}
+                  maxSalary={maxSalary}
+                  onPresetChange={setSelectedSalary}
+                  onMinChange={setMinSalary}
+                  onMaxChange={setMaxSalary}
                   isDarkMode={isDarkMode}
                 />
 
@@ -917,6 +1143,8 @@ export default function Homepage() {
                   <button
                     onClick={() => {
                       setSelectedSalary('all');
+                      setMinSalary('');
+                      setMaxSalary('');
                       setSelectedDate('all');
                       setSelectedWorkplace('All');
                     }}
@@ -1011,7 +1239,7 @@ export default function Homepage() {
             ) : viewMode === 'list' ? (
               /* LIST VIEW */
               <motion.div
-                key={`list-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
+                key={`list-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${minSalary}-${maxSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
@@ -1109,7 +1337,7 @@ export default function Homepage() {
             ) : (
               /* CARD (GRID) VIEW */
               <motion.div
-                key={`grid-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
+                key={`grid-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${minSalary}-${maxSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
