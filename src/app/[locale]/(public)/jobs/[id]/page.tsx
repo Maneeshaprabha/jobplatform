@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useMemo, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -17,9 +17,24 @@ import {
   X,
   Maximize2,
   Image as ImageIcon,
+  UploadCloud,
+  ExternalLink,
+  ArrowUpRight,
+  Paperclip,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from '../../../../../components/Navbar';
+
+const LinkedInIcon = ({ className = 'w-4 h-4' }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    aria-hidden="true"
+  >
+    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z" />
+  </svg>
+);
 
 const createFallbackFlyerDataUrl = (
   title: string,
@@ -52,11 +67,41 @@ const createFallbackFlyerDataUrl = (
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 };
 
-const MOCK_JOBS_DATA = [
+type ApplyMethod = 'internal' | 'website' | 'linkedin';
+
+interface JobItem {
+  id: string;
+  title: string;
+  company: string;
+  companySlug: string;
+  sector: string;
+  isForeign: boolean;
+  location: string;
+  type: string;
+  workplace: string;
+  status: string;
+  closingDate: string;
+  posted: string;
+  hasPdfForm: boolean;
+  pdfLabel: string;
+  applyMethod: ApplyMethod;
+  externalApplyUrl?: string;
+  flyerUrl: string;
+  flyerFallback: string;
+  flyerCaption: string;
+  summary: string;
+  responsibilities: string[];
+  requirements: string[];
+  logo: string;
+  logoBg: string;
+}
+
+const MOCK_JOBS_DATA: JobItem[] = [
   {
     id: '1',
     title: 'Senior UI/UX Designer',
     company: 'PickMe (Digital Mobility Solutions)',
+    companySlug: 'pickme',
     sector: 'it',
     isForeign: false,
     location: 'Colombo, Sri Lanka',
@@ -67,6 +112,7 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 5 mins ago',
     hasPdfForm: false,
     pdfLabel: '',
+    applyMethod: 'internal',
     flyerUrl: '/flyers/pickme-uiux.jpg',
     flyerFallback: createFallbackFlyerDataUrl(
       'Senior UI/UX Designer',
@@ -93,6 +139,7 @@ const MOCK_JOBS_DATA = [
     id: '2',
     title: 'Vocational Instructor Vacancies 2026',
     company: 'Department of Social Services',
+    companySlug: 'department-of-social-services',
     sector: 'government',
     isForeign: false,
     location: 'All Island, Sri Lanka',
@@ -103,6 +150,8 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 1 hour ago',
     hasPdfForm: true,
     pdfLabel: 'Official Application Form (PDF)',
+    applyMethod: 'website',
+    externalApplyUrl: 'https://www.socialservices.gov.lk',
     flyerUrl: '/flyers/social-services-2026.jpg',
     flyerFallback: createFallbackFlyerDataUrl(
       'Vocational Instructor 2026',
@@ -130,6 +179,7 @@ const MOCK_JOBS_DATA = [
     id: '3',
     title: 'Hotel & Hospitality Supervisors (SLBFE Approved)',
     company: 'Emirates Grand Hospitality Group',
+    companySlug: 'emirates-grand-hospitality',
     sector: 'foreign',
     isForeign: true,
     location: 'Dubai, UAE',
@@ -140,6 +190,7 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 2 hours ago',
     hasPdfForm: true,
     pdfLabel: 'SLBFE Application Checklist (PDF)',
+    applyMethod: 'internal',
     flyerUrl: '/flyers/dubai-hospitality.jpg',
     flyerFallback: createFallbackFlyerDataUrl(
       'Hospitality Supervisors – Dubai',
@@ -167,6 +218,7 @@ const MOCK_JOBS_DATA = [
     id: '4',
     title: 'Full Stack Developer (Next.js/Node)',
     company: 'Sysco LABS Sri Lanka',
+    companySlug: 'sysco-labs',
     sector: 'it',
     isForeign: false,
     location: 'Colombo, Sri Lanka',
@@ -177,6 +229,8 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 3 hours ago',
     hasPdfForm: false,
     pdfLabel: '',
+    applyMethod: 'linkedin',
+    externalApplyUrl: 'https://www.linkedin.com/company/syscolabs/jobs/',
     flyerUrl: '',
     flyerFallback: '',
     flyerCaption: '',
@@ -199,6 +253,7 @@ const MOCK_JOBS_DATA = [
     id: '5',
     title: 'Caregiver & Nursing Staff (SSW Visa Program)',
     company: 'Sakura Healthcare Japan',
+    companySlug: 'sakura-healthcare-japan',
     sector: 'foreign',
     isForeign: true,
     location: 'Osaka, Japan',
@@ -209,6 +264,7 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 5 hours ago',
     hasPdfForm: false,
     pdfLabel: '',
+    applyMethod: 'internal',
     flyerUrl: '/flyers/japan-caregiver.jpg',
     flyerFallback: createFallbackFlyerDataUrl(
       'Caregiver & Nursing – Japan',
@@ -235,6 +291,7 @@ const MOCK_JOBS_DATA = [
     id: '6',
     title: 'Digital Marketing Executive',
     company: 'Daraz Sri Lanka',
+    companySlug: 'daraz-sri-lanka',
     sector: 'private',
     isForeign: false,
     location: 'Kandy, Sri Lanka',
@@ -245,6 +302,8 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 1 day ago',
     hasPdfForm: false,
     pdfLabel: '',
+    applyMethod: 'website',
+    externalApplyUrl: 'https://careers.daraz.com',
     flyerUrl: '',
     flyerFallback: '',
     flyerCaption: '',
@@ -267,6 +326,7 @@ const MOCK_JOBS_DATA = [
     id: '7',
     title: 'Software Engineering Intern',
     company: 'WSO2 Lanka (Pvt) Ltd',
+    companySlug: 'wso2-lanka',
     sector: 'internship',
     isForeign: false,
     location: 'Galle, Sri Lanka',
@@ -277,6 +337,8 @@ const MOCK_JOBS_DATA = [
     posted: 'Posted 2 days ago',
     hasPdfForm: false,
     pdfLabel: '',
+    applyMethod: 'linkedin',
+    externalApplyUrl: 'https://www.linkedin.com/company/wso2/jobs/',
     flyerUrl: '',
     flyerFallback: '',
     flyerCaption: '',
@@ -308,7 +370,12 @@ function JobDetailsContent() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [note, setNote] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null);
+
+  const cvInputRef = useRef<HTMLInputElement>(null);
+  const coverLetterInputRef = useRef<HTMLInputElement>(null);
 
   // Flyer Lightbox Zoom Modal state
   const [flyerZoomOpen, setFlyerZoomOpen] = useState(false);
@@ -377,6 +444,7 @@ function JobDetailsContent() {
 
   const handleApplySubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!cvFile) return;
     setSubmitted(true);
   };
 
@@ -386,7 +454,56 @@ function JobDetailsContent() {
     setFullName('');
     setEmail('');
     setPhone('');
-    setNote('');
+    setCoverLetter('');
+    setCvFile(null);
+    setCoverLetterFile(null);
+  };
+
+  // Dynamic Primary Apply Action Button Renderer (Internal / Website / LinkedIn)
+  const renderPrimaryApplyButton = (isMobile = false) => {
+    const sizeClass = isMobile
+      ? 'flex-1 px-5 py-3 text-sm'
+      : 'px-6 py-3 text-base';
+
+    if (job.applyMethod === 'linkedin' && job.externalApplyUrl) {
+      return (
+        <a
+          href={job.externalApplyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white font-semibold transition-colors cursor-pointer ${sizeClass}`}
+        >
+          <LinkedInIcon className="w-4 h-4" />
+          Apply via LinkedIn
+          <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+        </a>
+      );
+    }
+
+    if (job.applyMethod === 'website' && job.externalApplyUrl) {
+      return (
+        <a
+          href={job.externalApplyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`inline-flex items-center justify-center gap-2 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold transition-colors cursor-pointer ${sizeClass}`}
+        >
+          <Globe className="w-4 h-4" />
+          Apply on Website
+          <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+        </a>
+      );
+    }
+
+    return (
+      <button
+        onClick={() => setApplyModalOpen(true)}
+        className={`inline-flex items-center justify-center gap-2 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold transition-colors cursor-pointer ${sizeClass}`}
+      >
+        <Send className="w-4 h-4" />
+        Apply Online
+      </button>
+    );
   };
 
   return (
@@ -414,7 +531,9 @@ function JobDetailsContent() {
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div className="flex items-start gap-4 sm:gap-5">
               <div
-                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex-shrink-0 ${job.logoBg} flex items-center justify-center font-bold text-xl sm:text-2xl shadow-xs`}
+                onClick={() => router.push(`/companies/${job.companySlug}`)}
+                className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex-shrink-0 ${job.logoBg} flex items-center justify-center font-bold text-xl sm:text-2xl shadow-xs cursor-pointer hover:opacity-90 transition-opacity`}
+                title={`View all jobs at ${job.company}`}
               >
                 {job.logo}
               </div>
@@ -444,11 +563,15 @@ function JobDetailsContent() {
                   {job.title}
                 </h1>
 
-                <p
-                  className={`text-sm sm:text-base font-medium mt-1 ${textMuted}`}
+                {/* Clickable Company Profile Link */}
+                <button
+                  type="button"
+                  onClick={() => router.push(`/companies/${job.companySlug}`)}
+                  className="inline-flex items-center gap-1 text-sm sm:text-base font-medium mt-1 text-[#29AAE3] hover:underline cursor-pointer"
                 >
-                  {job.company}
-                </p>
+                  <span>{job.company}</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
 
                 {/* Metadata Strip */}
                 <div
@@ -481,15 +604,9 @@ function JobDetailsContent() {
               </div>
             </div>
 
-            {/* Desktop Action Buttons (Hidden on Mobile — shown in bottom sticky bar on mobile) */}
+            {/* Desktop Action Buttons */}
             <div className="hidden md:flex flex-col gap-3 flex-shrink-0">
-              <button
-                onClick={() => setApplyModalOpen(true)}
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold text-base transition-colors cursor-pointer"
-              >
-                <Send className="w-4 h-4" />
-                Apply Online
-              </button>
+              {renderPrimaryApplyButton(false)}
 
               {job.hasPdfForm && (
                 <button
@@ -623,8 +740,22 @@ function JobDetailsContent() {
               <div className="space-y-2.5 text-sm">
                 <div className="flex justify-between gap-2">
                   <span className={textMuted}>Organization</span>
-                  <span className="font-semibold text-right">
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/companies/${job.companySlug}`)}
+                    className="font-semibold text-right text-[#29AAE3] hover:underline cursor-pointer"
+                  >
                     {job.company}
+                  </button>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <span className={textMuted}>Apply Via</span>
+                  <span className="font-semibold text-right">
+                    {job.applyMethod === 'linkedin'
+                      ? 'LinkedIn'
+                      : job.applyMethod === 'website'
+                      ? 'Company Website'
+                      : 'Direct Online Form'}
                   </span>
                 </div>
                 <div className="flex justify-between gap-2">
@@ -645,6 +776,26 @@ function JobDetailsContent() {
                     {job.closingDate}
                   </span>
                 </div>
+              </div>
+
+              {/* View All Company Jobs CTA */}
+              <div
+                className={`pt-4 border-t ${
+                  isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => router.push(`/companies/${job.companySlug}`)}
+                  className={`w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${
+                    isDarkMode
+                      ? 'border-zinc-700 text-zinc-200 hover:border-[#29AAE3] hover:text-[#29AAE3]'
+                      : 'border-zinc-200 text-zinc-800 hover:border-[#29AAE3] hover:text-[#29AAE3]'
+                  }`}
+                >
+                  View all jobs at this company
+                  <ArrowUpRight className="w-4 h-4" />
+                </button>
               </div>
 
               {job.hasPdfForm && (
@@ -686,13 +837,7 @@ function JobDetailsContent() {
             </button>
           )}
 
-          <button
-            onClick={() => setApplyModalOpen(true)}
-            className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white font-semibold text-sm transition-colors cursor-pointer"
-          >
-            <Send className="w-4 h-4" />
-            Apply Online
-          </button>
+          {renderPrimaryApplyButton(true)}
         </div>
       </div>
 
@@ -751,7 +896,7 @@ function JobDetailsContent() {
         )}
       </AnimatePresence>
 
-      {/* Online Apply Modal */}
+      {/* Online Apply Modal (With CV Upload & Cover Letter) */}
       <AnimatePresence>
         {applyModalOpen && (
           <motion.div
@@ -764,7 +909,7 @@ function JobDetailsContent() {
               initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.96, opacity: 0 }}
-              className={`${cardBg} border w-full max-w-lg rounded-2xl p-6 shadow-xl relative`}
+              className={`${cardBg} border w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-xl relative`}
             >
               <button
                 onClick={resetAndCloseModal}
@@ -779,8 +924,9 @@ function JobDetailsContent() {
                   <CheckCircle2 className="w-14 h-14 text-[#29AAE3] mx-auto" />
                   <h3 className="text-xl font-bold">Application Submitted</h3>
                   <p className={`text-sm ${textMuted}`}>
-                    Your application for <strong>{job.title}</strong> at{' '}
-                    <strong>{job.company}</strong> has been received.
+                    Your application and CV ({cvFile?.name}) for{' '}
+                    <strong>{job.title}</strong> at{' '}
+                    <strong>{job.company}</strong> have been received.
                   </p>
                   <button
                     onClick={resetAndCloseModal}
@@ -800,7 +946,7 @@ function JobDetailsContent() {
 
                   <div>
                     <label className="block text-xs font-semibold mb-1.5">
-                      Full Name
+                      Full Name *
                     </label>
                     <input
                       type="text"
@@ -808,7 +954,7 @@ function JobDetailsContent() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Enter your full name"
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent ${
+                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent focus:border-[#29AAE3] ${
                         isDarkMode ? 'border-zinc-700' : 'border-zinc-200'
                       }`}
                     />
@@ -817,7 +963,7 @@ function JobDetailsContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-semibold mb-1.5">
-                        Email
+                        Email *
                       </label>
                       <input
                         type="email"
@@ -825,14 +971,14 @@ function JobDetailsContent() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent ${
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent focus:border-[#29AAE3] ${
                           isDarkMode ? 'border-zinc-700' : 'border-zinc-200'
                         }`}
                       />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold mb-1.5">
-                        Phone Number
+                        Phone Number *
                       </label>
                       <input
                         type="tel"
@@ -840,23 +986,134 @@ function JobDetailsContent() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="+94 7X XXX XXXX"
-                        className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent ${
+                        className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent focus:border-[#29AAE3] ${
                           isDarkMode ? 'border-zinc-700' : 'border-zinc-200'
                         }`}
                       />
                     </div>
                   </div>
 
+                  {/* CV / Resume Upload */}
                   <div>
                     <label className="block text-xs font-semibold mb-1.5">
-                      Summary / Experience Note
+                      Upload CV / Resume (PDF, DOC, DOCX) *
                     </label>
+                    <input
+                      ref={cvInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx"
+                      onChange={(e) => setCvFile(e.target.files?.[0] || null)}
+                      className="hidden"
+                    />
+
+                    {cvFile ? (
+                      <div
+                        className={`flex items-center justify-between gap-3 px-3.5 py-3 rounded-xl border ${
+                          isDarkMode
+                            ? 'bg-[#121212] border-[#29AAE3]/50'
+                            : 'bg-[#29AAE3]/5 border-[#29AAE3]/40'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <FileText className="w-5 h-5 text-[#29AAE3] flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold truncate">
+                              {cvFile.name}
+                            </p>
+                            <p className={`text-[11px] ${textMuted}`}>
+                              {(cvFile.size / 1024).toFixed(1)} KB
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCvFile(null);
+                            if (cvInputRef.current)
+                              cvInputRef.current.value = '';
+                          }}
+                          className="text-zinc-400 hover:text-rose-500 cursor-pointer p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => cvInputRef.current?.click()}
+                        className={`w-full border-2 border-dashed rounded-xl p-4 text-center transition-colors cursor-pointer ${
+                          isDarkMode
+                            ? 'border-zinc-700 hover:border-[#29AAE3] bg-[#121212]'
+                            : 'border-zinc-200 hover:border-[#29AAE3] bg-zinc-50/70'
+                        }`}
+                      >
+                        <UploadCloud className="w-6 h-6 text-[#29AAE3] mx-auto mb-1.5" />
+                        <p className="text-xs font-semibold">
+                          Click to upload your CV
+                        </p>
+                        <p className={`text-[11px] mt-0.5 ${textMuted}`}>
+                          PDF, DOC or DOCX (Max 5MB)
+                        </p>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Cover Letter (Text + Optional File Attachment) */}
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-semibold">
+                        Cover Letter
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => coverLetterInputRef.current?.click()}
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#29AAE3] hover:underline cursor-pointer"
+                      >
+                        <Paperclip className="w-3 h-3" />
+                        {coverLetterFile ? 'Change File' : 'Attach File (Optional)'}
+                      </button>
+                      <input
+                        ref={coverLetterInputRef}
+                        type="file"
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) =>
+                          setCoverLetterFile(e.target.files?.[0] || null)
+                        }
+                        className="hidden"
+                      />
+                    </div>
+
+                    {coverLetterFile && (
+                      <div
+                        className={`mb-2 flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs ${
+                          isDarkMode
+                            ? 'bg-[#121212] border-zinc-700'
+                            : 'bg-zinc-50 border-zinc-200'
+                        }`}
+                      >
+                        <span className="truncate font-medium">
+                          {coverLetterFile.name}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCoverLetterFile(null);
+                            if (coverLetterInputRef.current)
+                              coverLetterInputRef.current.value = '';
+                          }}
+                          className="text-zinc-400 hover:text-rose-500 cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
+
                     <textarea
-                      rows={3}
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      placeholder="Briefly share your relevant experience or CV link..."
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent ${
+                      rows={4}
+                      value={coverLetter}
+                      onChange={(e) => setCoverLetter(e.target.value)}
+                      placeholder="Write a brief cover letter explaining why you're a great fit for this role..."
+                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm outline-none bg-transparent focus:border-[#29AAE3] ${
                         isDarkMode ? 'border-zinc-700' : 'border-zinc-200'
                       }`}
                     />
@@ -874,7 +1131,8 @@ function JobDetailsContent() {
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-2.5 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] text-white text-sm font-semibold cursor-pointer"
+                      disabled={!cvFile}
+                      className="px-6 py-2.5 rounded-xl bg-[#29AAE3] hover:bg-[#1E8EC2] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold cursor-pointer"
                     >
                       Submit Application
                     </button>
