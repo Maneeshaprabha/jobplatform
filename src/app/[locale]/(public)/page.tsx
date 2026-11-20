@@ -115,13 +115,13 @@ function CompanyLogo({
 
   const sizeClass =
     size === 'sm'
-      ? 'w-10 h-10 sm:w-11 sm:h-11 text-base sm:text-lg'
+      ? 'w-10 h-10 sm:w-11 sm:h-11 text-base'
       : 'w-11 h-11 sm:w-12 sm:h-12 text-base sm:text-lg mt-0.5';
 
   if (logoUrl && !imgError) {
     return (
       <div
-        className={`${sizeClass} rounded-xl flex-shrink-0 overflow-hidden bg-white border flex items-center justify-center p-1.5 shadow-xs ${
+        className={`${sizeClass} rounded-xl flex-shrink-0 overflow-hidden bg-white border flex items-center justify-center p-1.5 ${
           isDarkMode ? 'border-zinc-700/80' : 'border-zinc-200/80'
         }`}
       >
@@ -137,7 +137,7 @@ function CompanyLogo({
 
   return (
     <div
-      className={`${sizeClass} rounded-xl flex-shrink-0 ${fallbackBg} flex items-center justify-center font-bold shadow-xs`}
+      className={`${sizeClass} rounded-xl flex-shrink-0 ${fallbackBg} flex items-center justify-center font-bold`}
     >
       {fallbackText}
     </div>
@@ -192,14 +192,14 @@ function FilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+        className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs sm:text-[13px] font-medium transition-all cursor-pointer ${
           isFiltered
             ? isDarkMode
               ? 'bg-[#29AAE3]/15 border-[#29AAE3]/50 text-zinc-100'
               : 'bg-[#29AAE3]/10 border-[#29AAE3]/40 text-zinc-900'
             : isDarkMode
-            ? 'bg-[#121212] border-zinc-800 text-zinc-200 hover:border-zinc-700'
-            : 'bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
+            ? 'bg-[#1A1A1A] border-zinc-800 text-zinc-300 hover:border-zinc-700'
+            : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
         }`}
       >
         <span className="flex-shrink-0 text-[#29AAE3]">{icon}</span>
@@ -314,14 +314,14 @@ function SalaryDropdown({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs sm:text-sm font-medium transition-all cursor-pointer ${
+        className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs sm:text-[13px] font-medium transition-all cursor-pointer ${
           isFiltered
             ? isDarkMode
               ? 'bg-[#29AAE3]/15 border-[#29AAE3]/50 text-zinc-100'
               : 'bg-[#29AAE3]/10 border-[#29AAE3]/40 text-zinc-900'
             : isDarkMode
-            ? 'bg-[#121212] border-zinc-800 text-zinc-200 hover:border-zinc-700'
-            : 'bg-zinc-50 border-zinc-200/80 text-zinc-700 hover:bg-zinc-100/80'
+            ? 'bg-[#1A1A1A] border-zinc-800 text-zinc-300 hover:border-zinc-700'
+            : 'bg-white border-zinc-200 text-zinc-700 hover:bg-zinc-50'
         }`}
       >
         <Banknote className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
@@ -491,22 +491,19 @@ export default function Homepage() {
     setMounted(true);
   }, []);
 
-  // Theme Classes with #1A1A1A Dark Surface & #29AAE3 Accent
-  const bgClass = isDarkMode ? 'bg-[#121212]' : 'bg-[#F8FAFC]';
+  // Theme Classes matching Clean White Editorial Companies Theme
+  const bgClass = isDarkMode ? 'bg-[#121212]' : 'bg-white';
   const textMain = isDarkMode ? 'text-zinc-100' : 'text-zinc-900';
   const textMuted = isDarkMode ? 'text-zinc-400' : 'text-zinc-500';
   const cardBg = isDarkMode
     ? 'bg-[#1A1A1A] border-zinc-800'
     : 'bg-white border-zinc-200/80';
-
-  const modernCardHover = isDarkMode
-    ? 'hover:-translate-y-0.5 hover:shadow-xl hover:shadow-black/50'
-    : 'hover:-translate-y-0.5 hover:shadow-lg hover:shadow-zinc-200/70';
+  const borderSubtle = isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80';
 
   const accentText = 'text-[#29AAE3]';
   const accentBtn = 'bg-[#29AAE3] hover:bg-[#1E8EC2] text-white';
 
-  // Mock Job Data (Add real images to /public/logos/ — falls back to initials automatically)
+  // Mock Job Data
   const mockJobs = [
     {
       id: 1,
@@ -818,112 +815,70 @@ export default function Homepage() {
     selectedDate !== 'all' ||
     selectedWorkplace !== 'All';
 
-  // Inline Metadata Strip
+  // Inline Metadata Strip (Clean muted icons matching Companies theme)
   const renderMetaRow = (job: (typeof mockJobs)[0]) => (
     <div
-      className={`flex flex-wrap items-center gap-x-4 sm:gap-x-5 gap-y-1.5 text-sm sm:text-base ${
-        isDarkMode ? 'text-zinc-300' : 'text-zinc-600'
-      }`}
+      className={`flex flex-wrap items-center gap-x-4 sm:gap-x-5 gap-y-1.5 text-xs sm:text-[13px] ${textMuted}`}
     >
       <span className="inline-flex items-center gap-1.5">
-        <Briefcase
-          className={`w-4 h-4 flex-shrink-0 ${
-            isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
-          }`}
-        />
+        <Briefcase className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
         <span>{job.type}</span>
       </span>
 
       <span className="inline-flex items-center gap-1.5">
-        <Monitor
-          className={`w-4 h-4 flex-shrink-0 ${
-            isDarkMode ? 'text-zinc-400' : 'text-zinc-500'
-          }`}
-        />
+        <Monitor className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
         <span>{job.workplace}</span>
       </span>
 
       <span className="inline-flex items-center gap-1.5">
         {job.isForeign ? (
-          <Globe className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
+          <Globe className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
         ) : (
-          <MapPin className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
+          <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
         )}
         <span>{job.location}</span>
       </span>
 
       <span className="inline-flex items-center gap-1.5">
-        <Banknote className="w-4 h-4 flex-shrink-0 text-[#29AAE3]" />
+        <Banknote className="w-3.5 h-3.5 flex-shrink-0 text-zinc-400" />
         <span>{job.salaryLabel}</span>
       </span>
     </div>
   );
 
-  // Minimalist Status Badge Renderer
-  const renderStatusBadge = (
-    status: string,
-    isUrgent?: boolean,
-    isAccentBadge?: boolean
-  ) => {
-    if (isUrgent) {
-      return (
-        <span
-          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold border ${
-            isDarkMode
-              ? 'bg-[#1A1A1A] border-zinc-700 text-zinc-200'
-              : 'bg-zinc-50 border-zinc-200 text-zinc-800'
-          }`}
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
-          </span>
-          {status}
-        </span>
-      );
-    }
-
-    if (isAccentBadge) {
-      return (
-        <span
-          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold border ${
-            isDarkMode
-              ? 'bg-[#1A1A1A] border-zinc-700 text-[#29AAE3]'
-              : 'bg-zinc-50 border-zinc-200 text-[#29AAE3]'
-          }`}
-        >
-          <span className="h-2 w-2 rounded-full bg-[#29AAE3]" />
-          {status}
-        </span>
-      );
-    }
-
-    return (
+  // Soft Pill Status Badge (Matching Companies Vacancies Pill)
+  const renderStatusBadge = (status: string, isUrgent?: boolean) => (
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+        isDarkMode
+          ? 'bg-zinc-900 text-zinc-200 border border-zinc-800'
+          : 'bg-[#F1F4F8] text-[#475569]'
+      }`}
+    >
       <span
-        className={`text-xs sm:text-sm font-semibold tracking-tight ${
-          isDarkMode ? 'text-zinc-300' : 'text-zinc-700'
+        className={`h-2 w-2 rounded-full flex-shrink-0 ${
+          isUrgent ? 'bg-rose-400' : 'bg-[#7EC8EE]'
         }`}
-      >
-        {status}
-      </span>
-    );
-  };
+      />
+      <span>{status}</span>
+    </span>
+  );
 
   // Framer Motion Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: { staggerChildren: 0.08 },
+      transition: { staggerChildren: 0.06 },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 14 },
+    hidden: { opacity: 0, y: 10 },
     show: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.35, ease: 'easeOut' as const },
+      transition: { duration: 0.3, ease: 'easeOut' as const },
     },
   };
 
@@ -937,14 +892,14 @@ export default function Homepage() {
       <Navbar isDarkMode={isDarkMode} setIsDarkMode={setIsDarkMode} />
 
       {/* Main Content Area */}
-      <main className="max-w-[1400px] mx-auto px-4 sm:px-6 py-5 sm:py-9">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-10 items-start">
-          {/* Left Sidebar Filters (Clean: Destination, Category, Location) */}
+      <main className="max-w-[1320px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 lg:gap-10 items-start">
+          {/* Left Sidebar Filters (Clean Flat Style without heavy box shadow) */}
           <motion.aside
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.45 }}
-            className={`lg:col-span-1 space-y-5 sm:space-y-6 ${cardBg} p-4 sm:p-6 rounded-2xl border shadow-xs lg:sticky lg:top-28 transition-colors duration-300`}
+            transition={{ duration: 0.4 }}
+            className={`lg:col-span-1 space-y-6 lg:pr-6 lg:border-r ${borderSubtle} lg:sticky lg:top-28 transition-colors duration-300`}
           >
             <div className="flex justify-between items-center">
               <h3 className={`font-bold text-base sm:text-lg ${textMain}`}>
@@ -958,7 +913,7 @@ export default function Homepage() {
               </button>
             </div>
 
-            {/* Destination Scope Switcher (All / Sri Lanka / Foreign) */}
+            {/* Destination Scope Switcher (Exact Button Style Preserved) */}
             <div>
               <h4
                 className={`font-semibold text-sm sm:text-base mb-2.5 ${textMain}`}
@@ -968,8 +923,8 @@ export default function Homepage() {
               <div
                 className={`grid grid-cols-3 p-1 rounded-xl border ${
                   isDarkMode
-                    ? 'bg-[#121212] border-zinc-800'
-                    : 'bg-zinc-100/80 border-zinc-200/80'
+                    ? 'bg-[#1A1A1A] border-zinc-800'
+                    : 'bg-zinc-50 border-zinc-200/80'
                 }`}
               >
                 {[
@@ -997,11 +952,9 @@ export default function Homepage() {
               </div>
             </div>
 
-            <hr
-              className={isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80'}
-            />
+            <hr className={borderSubtle} />
 
-            {/* Job Sector Filter */}
+            {/* Job Sector Filter (Exact Button Style Preserved) */}
             <div>
               <h4
                 className={`font-semibold text-sm sm:text-base mb-2.5 sm:mb-3 ${textMain}`}
@@ -1022,7 +975,7 @@ export default function Homepage() {
                             : 'bg-[#1A1A1A] text-white shadow-xs'
                           : isDarkMode
                           ? 'bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#242424]'
-                          : 'bg-zinc-50/80 text-zinc-700 border border-zinc-200/80 hover:bg-zinc-100'
+                          : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50'
                       }`}
                     >
                       <span>{sector.label}</span>
@@ -1035,11 +988,9 @@ export default function Homepage() {
               </div>
             </div>
 
-            <hr
-              className={isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80'}
-            />
+            <hr className={borderSubtle} />
 
-            {/* Conditional Location Selector: Sri Lanka Provinces OR Foreign Regions */}
+            {/* Conditional Location Selector */}
             {jobScope === 'foreign' ? (
               <div>
                 <div className="flex items-center gap-2 mb-2.5 sm:mb-3">
@@ -1062,7 +1013,7 @@ export default function Homepage() {
                             ? 'bg-[#29AAE3] text-white font-semibold shadow-xs'
                             : isDarkMode
                             ? 'bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#242424]'
-                            : 'bg-zinc-50/80 text-zinc-700 border border-zinc-200/80 hover:bg-zinc-100'
+                            : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50'
                         }`}
                       >
                         {region}
@@ -1096,7 +1047,7 @@ export default function Homepage() {
                             ? 'bg-[#29AAE3] text-white font-semibold shadow-xs'
                             : isDarkMode
                             ? 'bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#242424]'
-                            : 'bg-zinc-50/80 text-zinc-700 border border-zinc-200/80 hover:bg-zinc-100'
+                            : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50'
                         }`}
                       >
                         {province}
@@ -1110,29 +1061,33 @@ export default function Homepage() {
 
           {/* Right Content Area */}
           <div className="lg:col-span-3 min-w-0">
-            {/* Search Bar + Custom Animated Filter Dropdowns */}
+            {/* Flat Clean Search Bar + Pill Dropdowns (Matching Companies Header) */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className={`w-full ${cardBg} border rounded-2xl p-2 sm:p-2.5 mb-5 sm:mb-6 shadow-xs transition-colors duration-300 relative z-30`}
+              className="mb-6 space-y-3 relative z-30"
             >
-              {/* Top Row: Keyword + Location + Find Jobs Button */}
-              <div className="flex flex-col md:flex-row w-full">
+              {/* Top Row: Clean Input Bar + Find Jobs Button */}
+              <div
+                className={`flex flex-col md:flex-row w-full border rounded-xl p-1.5 transition-colors ${
+                  isDarkMode
+                    ? 'bg-[#1A1A1A] border-zinc-800'
+                    : 'bg-white border-zinc-200'
+                }`}
+              >
                 <div
-                  className={`flex-1 flex items-center px-3 sm:px-4 py-2.5 sm:py-3 border-b md:border-b-0 md:border-r ${
+                  className={`flex-1 flex items-center px-3 py-2 border-b md:border-b-0 md:border-r ${
                     isDarkMode ? 'border-zinc-800' : 'border-zinc-200/80'
                   }`}
                 >
-                  <Search
-                    className={`w-5 h-5 mr-2.5 sm:mr-3 flex-shrink-0 ${textMuted}`}
-                  />
+                  <Search className="w-4 h-4 mr-2.5 flex-shrink-0 text-zinc-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Job title, keywords, or company"
-                    className={`w-full text-sm sm:text-base outline-none bg-transparent ${textMain} placeholder-zinc-400`}
+                    className={`w-full text-sm outline-none bg-transparent ${textMain} placeholder-zinc-400`}
                   />
                   {searchQuery && (
                     <button
@@ -1144,32 +1099,28 @@ export default function Homepage() {
                   )}
                 </div>
 
-                <div className="flex-1 flex items-center px-3 sm:px-4 py-2.5 sm:py-3">
+                <div className="flex-1 flex items-center px-3 py-2">
                   <Globe
-                    className={`w-5 h-5 mr-2.5 sm:mr-3 flex-shrink-0 ${accentText}`}
+                    className={`w-4 h-4 mr-2.5 flex-shrink-0 ${accentText}`}
                   />
                   <input
                     type="text"
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                     placeholder="City, Province, or Country (e.g. Dubai, Japan)"
-                    className={`w-full text-sm sm:text-base outline-none bg-transparent ${textMain} placeholder-zinc-400`}
+                    className={`w-full text-sm outline-none bg-transparent ${textMain} placeholder-zinc-400`}
                   />
                 </div>
 
                 <button
-                  className={`${accentBtn} w-full md:w-auto px-6 sm:px-8 py-3 rounded-xl font-medium text-sm sm:text-base md:m-1 transition-all shadow-xs cursor-pointer flex-shrink-0`}
+                  className={`${accentBtn} w-full md:w-auto px-6 sm:px-7 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs cursor-pointer flex-shrink-0`}
                 >
                   Find jobs
                 </button>
               </div>
 
-              {/* Bottom Row inside Search Bar: Custom Salary Range, Date Posted, Work Mode */}
-              <div
-                className={`mt-2 pt-2.5 px-1.5 sm:px-2 border-t flex flex-wrap items-center gap-2 ${
-                  isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
-                }`}
-              >
+              {/* Filter Pill Dropdowns Row */}
+              <div className="flex flex-wrap items-center gap-2">
                 <SalaryDropdown
                   selectedPreset={selectedSalary}
                   minSalary={minSalary}
@@ -1181,7 +1132,7 @@ export default function Homepage() {
                 />
 
                 <FilterDropdown
-                  icon={<Clock className="w-4 h-4" />}
+                  icon={<Clock className="w-3.5 h-3.5" />}
                   value={selectedDate}
                   options={DATE_FILTERS}
                   onChange={setSelectedDate}
@@ -1189,7 +1140,7 @@ export default function Homepage() {
                 />
 
                 <FilterDropdown
-                  icon={<Monitor className="w-4 h-4" />}
+                  icon={<Monitor className="w-3.5 h-3.5" />}
                   value={selectedWorkplace}
                   options={WORKPLACE_OPTIONS}
                   onChange={setSelectedWorkplace}
@@ -1213,21 +1164,21 @@ export default function Homepage() {
               </div>
             </motion.div>
 
-            {/* Results Count + Custom Sort Dropdown + Card/List View Switcher */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-5 relative z-20">
-              <div className={`font-medium text-sm sm:text-base ${textMuted}`}>
-                <span className={`font-bold ${accentText}`}>
+            {/* Results Count + Sort Dropdown + Card/List View Switcher */}
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 relative z-20">
+              <div className={`font-medium text-xs sm:text-sm ${textMuted}`}>
+                Showing{' '}
+                <span className={`font-semibold ${accentText}`}>
                   {filteredJobs.length}
                 </span>{' '}
                 {jobScope === 'foreign'
-                  ? 'Foreign jobs found'
+                  ? 'foreign jobs'
                   : jobScope === 'local'
-                  ? 'Jobs found in Sri Lanka'
-                  : 'Jobs found (Sri Lanka & Foreign)'}
+                  ? 'jobs in Sri Lanka'
+                  : 'jobs (Sri Lanka & Foreign)'}
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
-                {/* Custom Sort Dropdown */}
                 <FilterDropdown
                   icon={<ArrowUpDown className="w-3.5 h-3.5" />}
                   value={sortBy}
@@ -1239,7 +1190,7 @@ export default function Homepage() {
                   align="right"
                 />
 
-                {/* View Mode Switcher */}
+                {/* View Mode Switcher (Exact Button Style Preserved) */}
                 <div
                   className={`inline-flex items-center p-1 rounded-xl border flex-shrink-0 ${cardBg}`}
                 >
@@ -1275,33 +1226,33 @@ export default function Homepage() {
 
             {/* Job Listings */}
             {filteredJobs.length === 0 ? (
-              <div
-                className={`${cardBg} border rounded-2xl p-8 sm:p-12 text-center shadow-xs`}
-              >
-                <Briefcase className="w-12 h-12 text-zinc-400 mx-auto mb-3" />
-                <h3 className={`text-lg sm:text-xl font-bold mb-2 ${textMain}`}>
+              <div className={`py-14 text-center border-t ${borderSubtle}`}>
+                <Briefcase className="w-10 h-10 text-zinc-400 mx-auto mb-3" />
+                <h3 className={`text-base sm:text-lg font-bold mb-1.5 ${textMain}`}>
                   No jobs found
                 </h3>
-                <p className={`text-sm sm:text-base mb-5 ${textMuted}`}>
+                <p className={`text-sm mb-5 ${textMuted}`}>
                   Try resetting your filters to see all local and foreign
                   vacancies.
                 </p>
                 <button
                   onClick={clearAllFilters}
-                  className={`${accentBtn} px-6 py-2.5 rounded-xl font-semibold text-sm sm:text-base cursor-pointer`}
+                  className={`${accentBtn} px-6 py-2.5 rounded-xl font-semibold text-sm cursor-pointer`}
                 >
                   Reset Filters
                 </button>
               </div>
             ) : viewMode === 'list' ? (
-              /* LIST VIEW */
+              /* CLEAN EDITORIAL LIST VIEW (Matching Companies Page) */
               <motion.div
                 key={`list-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${minSalary}-${maxSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
-                className={`${cardBg} rounded-2xl border shadow-xs overflow-hidden divide-y ${
-                  isDarkMode ? 'divide-zinc-800' : 'divide-zinc-200/80'
+                className={`divide-y border-t border-b ${
+                  isDarkMode
+                    ? 'divide-zinc-800/90 border-zinc-800/90'
+                    : 'divide-zinc-200/80 border-zinc-200/80'
                 }`}
               >
                 <AnimatePresence>
@@ -1310,15 +1261,15 @@ export default function Homepage() {
                       key={job.id}
                       variants={itemVariants}
                       onClick={() => router.push(`/jobs/${job.id}`)}
-                      className={`group p-4 sm:p-7 transition-colors duration-200 cursor-pointer ${
+                      className={`group py-5 sm:py-6 px-2 -mx-2 rounded-xl transition-colors duration-200 cursor-pointer ${
                         isDarkMode
-                          ? 'hover:bg-white/[0.03]'
-                          : 'hover:bg-zinc-50/90'
+                          ? 'hover:bg-white/[0.02]'
+                          : 'hover:bg-zinc-50/70'
                       }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-5">
                         {/* Left: Logo + Title + Company + Status + Metadata + Bullets */}
-                        <div className="flex items-start gap-3.5 sm:gap-5 min-w-0 flex-1">
+                        <div className="flex items-start gap-3.5 sm:gap-4 min-w-0 flex-1">
                           <CompanyLogo
                             logoUrl={job.logoUrl}
                             fallbackText={job.logo}
@@ -1331,31 +1282,28 @@ export default function Homepage() {
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                               <h3
-                                className={`text-lg sm:text-xl font-bold leading-snug transition-colors duration-200 ${textMain} group-hover:text-[#29AAE3]`}
+                                className={`text-base sm:text-lg font-bold leading-snug transition-colors duration-200 ${textMain} group-hover:text-[#29AAE3]`}
                               >
                                 {job.title}
                               </h3>
                               {renderStatusBadge(
                                 job.status,
-                                job.status.toLowerCase().includes('urgent'),
-                                job.sector === 'government' || job.isForeign
+                                job.status.toLowerCase().includes('urgent')
                               )}
                             </div>
 
                             <p
-                              className={`text-xs font-semibold uppercase tracking-wider mt-1 ${textMuted}`}
+                              className={`text-xs font-medium mt-0.5 ${textMuted}`}
                             >
                               {job.company}
                             </p>
 
                             {/* Inline Metadata Row */}
-                            <div className="mt-2.5 sm:mt-3">
-                              {renderMetaRow(job)}
-                            </div>
+                            <div className="mt-2">{renderMetaRow(job)}</div>
 
                             {/* Job Description Bullets */}
                             <ul
-                              className={`mt-3 space-y-1.5 text-sm sm:text-base list-disc pl-4 ${
+                              className={`mt-2.5 space-y-1 text-xs sm:text-sm list-disc pl-4 ${
                                 isDarkMode ? 'text-zinc-400' : 'text-zinc-600'
                               }`}
                             >
@@ -1366,11 +1314,11 @@ export default function Homepage() {
                           </div>
                         </div>
 
-                        {/* Right: Type / Workplace + Posted Time + Circle Arrow Button */}
+                        {/* Right: Posted Time + Circle Arrow Button (Exact Button Style Preserved) */}
                         <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center gap-3 flex-shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-zinc-100 dark:border-zinc-800/70">
                           <div className="text-left md:text-right">
                             <p
-                              className={`text-xs sm:text-sm font-medium ${textMain}`}
+                              className={`text-xs font-medium ${textMain}`}
                             >
                               {job.type} • {job.workplace}
                             </p>
@@ -1395,13 +1343,13 @@ export default function Homepage() {
                 </AnimatePresence>
               </motion.div>
             ) : (
-              /* CARD (GRID) VIEW */
+              /* CLEAN FLAT CARD (GRID) VIEW */
               <motion.div
                 key={`grid-${selectedSector}-${jobScope}-${selectedProvince}-${selectedForeignRegion}-${selectedSalary}-${minSalary}-${maxSalary}-${selectedDate}-${selectedWorkplace}-${sortBy}`}
                 variants={containerVariants}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6"
+                className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5"
               >
                 <AnimatePresence>
                   {filteredJobs.map((job) => (
@@ -1409,14 +1357,16 @@ export default function Homepage() {
                       key={job.id}
                       variants={itemVariants}
                       onClick={() => router.push(`/jobs/${job.id}`)}
-                      className={`group ${cardBg} rounded-2xl border shadow-xs transition-all duration-200 flex flex-col justify-between overflow-hidden cursor-pointer ${modernCardHover}`}
+                      className={`group ${cardBg} rounded-2xl border transition-colors duration-200 flex flex-col justify-between overflow-hidden cursor-pointer ${
+                        isDarkMode
+                          ? 'hover:border-zinc-700'
+                          : 'hover:border-zinc-300'
+                      }`}
                     >
                       {/* Card Top Header */}
                       <div
-                        className={`px-4 sm:px-6 py-3.5 sm:py-4 border-b ${
-                          isDarkMode
-                            ? 'border-zinc-800 bg-[#1A1A1A]'
-                            : 'border-zinc-100 bg-zinc-50/70'
+                        className={`px-4 sm:px-5 py-3.5 border-b ${
+                          isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
                         } flex items-center justify-between gap-2.5`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -1430,7 +1380,7 @@ export default function Homepage() {
                           />
                           <div className="min-w-0">
                             <p
-                              className={`font-semibold text-sm sm:text-base truncate ${textMain}`}
+                              className={`font-semibold text-sm truncate ${textMain}`}
                             >
                               {job.company}
                             </p>
@@ -1443,27 +1393,26 @@ export default function Homepage() {
                         <div className="flex-shrink-0">
                           {renderStatusBadge(
                             job.status,
-                            job.status.toLowerCase().includes('urgent'),
-                            job.sector === 'government' || job.isForeign
+                            job.status.toLowerCase().includes('urgent')
                           )}
                         </div>
                       </div>
 
                       {/* Card Body */}
-                      <div className="p-4 sm:p-6 flex-1">
+                      <div className="p-4 sm:p-5 flex-1">
                         <h3
-                          className={`text-lg sm:text-xl font-bold leading-snug mb-3 transition-colors duration-200 ${textMain} group-hover:text-[#29AAE3]`}
+                          className={`text-base sm:text-lg font-bold leading-snug mb-2.5 transition-colors duration-200 ${textMain} group-hover:text-[#29AAE3]`}
                         >
                           {job.title}
                         </h3>
 
                         {/* Inline Metadata Row */}
-                        <div className="mb-3.5">{renderMetaRow(job)}</div>
+                        <div className="mb-3">{renderMetaRow(job)}</div>
 
                         <div
-                          className={`flex items-center gap-2 text-xs sm:text-sm ${textMuted}`}
+                          className={`flex items-center gap-2 text-xs ${textMuted}`}
                         >
-                          <Calendar className="w-4 h-4 text-rose-500 flex-shrink-0" />
+                          <Calendar className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
                           <span>
                             Closing:{' '}
                             <strong className={textMain}>
@@ -1475,30 +1424,28 @@ export default function Homepage() {
 
                       {/* Card Footer */}
                       <div
-                        className={`px-4 sm:px-6 py-3.5 sm:py-4 border-t ${
+                        className={`px-4 sm:px-5 py-3.5 border-t ${
                           isDarkMode ? 'border-zinc-800' : 'border-zinc-100'
                         } flex items-center justify-between gap-3`}
                       >
                         {job.hasPdfForm ? (
                           <span
-                            className={`inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold ${accentText}`}
+                            className={`inline-flex items-center gap-1.5 text-xs font-semibold ${accentText}`}
                           >
-                            <FileText className="w-4 h-4" />
+                            <FileText className="w-3.5 h-3.5" />
                             PDF Form
                           </span>
                         ) : (
-                          <span
-                            className={`text-xs sm:text-sm font-medium ${textMuted}`}
-                          >
+                          <span className={`text-xs font-medium ${textMuted}`}>
                             Online Apply
                           </span>
                         )}
 
                         <span
-                          className={`inline-flex items-center gap-1 text-xs sm:text-sm font-bold ${accentText} group-hover:underline`}
+                          className={`inline-flex items-center gap-1 text-xs font-bold ${accentText} group-hover:underline`}
                         >
                           View Details
-                          <ArrowRight className="w-4 h-4" />
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                       </div>
                     </motion.div>
