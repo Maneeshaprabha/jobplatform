@@ -4,22 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
-  Search,
-  MapPin,
-  Briefcase,
-  Monitor,
-  Globe,
-  X,
-  LayoutGrid,
-  List,
-  Calendar,
-  FileText,
-  ArrowRight,
-  ArrowUpRight,
-  Banknote,
-  Clock,
-  ArrowUpDown,
-  ChevronDown,
+  Search,MapPin,Briefcase, Monitor, Globe, X, LayoutGrid, List, Calendar, FileText, ArrowRight, ArrowUpRight, Banknote, Clock, ArrowUpDown, ChevronDown,
   Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
