@@ -588,7 +588,7 @@ export default function Homepage() {
                           setSelectedProvince(province);
                         }}
                         className={`whitespace-nowrap px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer flex-shrink-0 ${
-                          isSelected && jobScope !== 'foreign'
+                          isSelected && jobScope === 'local'
                             ? 'bg-[#29AAE3] text-white font-semibold shadow-xs'
                             : isDarkMode
                             ? 'bg-[#1A1A1A] text-zinc-300 border border-zinc-800 hover:bg-[#242424]'

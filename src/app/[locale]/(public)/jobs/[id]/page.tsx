@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Suspense, useState, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -297,7 +297,7 @@ const MOCK_JOBS_DATA = [
   },
 ];
 
-export default function JobDetailsPage() {
+function JobDetailsContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -840,5 +840,19 @@ export default function JobDetailsPage() {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+export default function JobDetailsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center text-sm text-zinc-500">
+          Loading job details...
+        </div>
+      }
+    >
+      <JobDetailsContent />
+    </Suspense>
   );
 }
