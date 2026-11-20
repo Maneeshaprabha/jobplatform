@@ -63,7 +63,9 @@ export default function Homepage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [locationQuery, setLocationQuery] = useState('');
   const [selectedSector, setSelectedSector] = useState('all');
-  const [jobScope, setJobScope] = useState<'all' | 'local' | 'foreign'>('all');
+ const [jobScope, setJobScope] = useState<
+  'all' | 'local' | 'foreign'
+>('all');
   const [selectedProvince, setSelectedProvince] = useState('All Island');
   const [selectedForeignRegion, setSelectedForeignRegion] =
     useState('All Foreign');
