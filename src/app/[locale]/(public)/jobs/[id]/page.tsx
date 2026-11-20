@@ -421,10 +421,20 @@ function JobDetailsContent() {
 
               <div>
                 <div className="flex flex-wrap items-center gap-2.5 mb-1.5">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#29AAE3]/15 text-[#29AAE3]">
-                    <span className="h-2 w-2 rounded-full bg-[#29AAE3]" />
-                    {job.status}
-                  </span>
+                 <span
+  className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-medium leading-none ${
+    isDarkMode
+      ? 'bg-zinc-900/90 text-zinc-200 border border-zinc-800/80'
+      : 'bg-[#F1F4F8] text-[#475569]'
+  }`}
+>
+  <span
+    className={`h-2 w-2 rounded-full flex-shrink-0 ${
+      job.isUrgent ? 'bg-rose-400' : 'bg-[#7EC8EE]'
+    }`}
+  />
+  <span>{job.status}</span>
+</span>
                   <span className={`text-xs ${textMuted}`}>{job.posted}</span>
                 </div>
 
