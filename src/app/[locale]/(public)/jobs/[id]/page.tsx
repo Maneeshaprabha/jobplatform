@@ -430,7 +430,7 @@ function JobDetailsContent() {
 >
   <span
     className={`h-2 w-2 rounded-full flex-shrink-0 ${
-      job.isUrgent ? 'bg-rose-400' : 'bg-[#7EC8EE]'
+      job.status === 'Urgently hiring' ? 'bg-rose-400' : 'bg-[#7EC8EE]'
     }`}
   />
   <span>{job.status}</span>
