@@ -4,7 +4,22 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import {
-  Search,MapPin,Briefcase, Monitor, Globe, X, LayoutGrid, List, Calendar, FileText, ArrowRight, ArrowUpRight, Banknote, Clock, ArrowUpDown, ChevronDown,
+  Search,
+  MapPin,
+  Briefcase,
+  Monitor,
+  Globe,
+  X,
+  LayoutGrid,
+  List,
+  Calendar,
+  FileText,
+  ArrowRight,
+  ArrowUpRight,
+  Banknote,
+  Clock,
+  ArrowUpDown,
+  ChevronDown,
   Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -78,6 +93,56 @@ const formatShortLkr = (val: string) => {
   }
   return String(num);
 };
+
+interface CompanyLogoProps {
+  logoUrl?: string;
+  fallbackText: string;
+  fallbackBg: string;
+  companyName: string;
+  size?: 'sm' | 'md';
+  isDarkMode: boolean;
+}
+
+function CompanyLogo({
+  logoUrl,
+  fallbackText,
+  fallbackBg,
+  companyName,
+  size = 'md',
+  isDarkMode,
+}: CompanyLogoProps) {
+  const [imgError, setImgError] = useState(false);
+
+  const sizeClass =
+    size === 'sm'
+      ? 'w-10 h-10 sm:w-11 sm:h-11 text-base sm:text-lg'
+      : 'w-11 h-11 sm:w-12 sm:h-12 text-base sm:text-lg mt-0.5';
+
+  if (logoUrl && !imgError) {
+    return (
+      <div
+        className={`${sizeClass} rounded-xl flex-shrink-0 overflow-hidden bg-white border flex items-center justify-center p-1.5 shadow-xs ${
+          isDarkMode ? 'border-zinc-700/80' : 'border-zinc-200/80'
+        }`}
+      >
+        <img
+          src={logoUrl}
+          alt={`${companyName} logo`}
+          onError={() => setImgError(true)}
+          className="w-full h-full object-contain"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${sizeClass} rounded-xl flex-shrink-0 ${fallbackBg} flex items-center justify-center font-bold shadow-xs`}
+    >
+      {fallbackText}
+    </div>
+  );
+}
 
 interface DropdownOption {
   id: string;
@@ -441,7 +506,7 @@ export default function Homepage() {
   const accentText = 'text-[#29AAE3]';
   const accentBtn = 'bg-[#29AAE3] hover:bg-[#1E8EC2] text-white';
 
-  // Mock Job Data (Sri Lankan + Foreign Context with Salary & Date fields)
+  // Mock Job Data (Add real images to /public/logos/ — falls back to initials automatically)
   const mockJobs = [
     {
       id: 1,
@@ -466,6 +531,7 @@ export default function Homepage() {
         'Design intuitive interfaces for our local ride-hailing and food delivery applications.',
         'Collaborate with cross-functional engineering teams based in our Colombo head office.',
       ],
+      logoUrl: '/logos/pickme.png',
       logo: 'P',
       logoBg: isDarkMode ? 'bg-white text-[#1A1A1A]' : 'bg-[#1A1A1A] text-white',
     },
@@ -492,6 +558,7 @@ export default function Homepage() {
         'Recruitment to the posts of Vocational Instructor at Vocational Training Centers.',
         'Official application form PDF available for direct download.',
       ],
+      logoUrl: '/logos/dss.png',
       logo: 'DS',
       logoBg: 'bg-[#29AAE3] text-white',
     },
@@ -518,6 +585,7 @@ export default function Homepage() {
         'Free accommodation, medical insurance, and return air ticket provided by the employer.',
         'SLBFE registered recruitment agency — official application checklist PDF available.',
       ],
+      logoUrl: '/logos/emirates-grand.png',
       logo: 'EG',
       logoBg: 'bg-amber-600 text-white',
     },
@@ -544,6 +612,7 @@ export default function Homepage() {
         'Build enterprise-grade software solutions for the global foodservice industry.',
         'Enjoy flexible working hours with a strong remote-first engineering culture.',
       ],
+      logoUrl: '/logos/sysco-labs.png',
       logo: 'S',
       logoBg: 'bg-blue-600 text-white',
     },
@@ -570,6 +639,7 @@ export default function Homepage() {
         'Specified Skilled Worker (SSW) pathway with Japanese language training support.',
         'Monthly salary starting from JPY 210,000 + overtime and housing allowance.',
       ],
+      logoUrl: '/logos/sakura-healthcare.png',
       logo: 'SH',
       logoBg: 'bg-rose-600 text-white',
     },
@@ -596,6 +666,7 @@ export default function Homepage() {
         'Execute regional e-commerce marketing campaigns across the Central Province.',
         'Analyze consumer trends and optimize digital advertising spend for maximum ROI.',
       ],
+      logoUrl: '/logos/daraz.png',
       logo: 'D',
       logoBg: 'bg-orange-500 text-white',
     },
@@ -622,6 +693,7 @@ export default function Homepage() {
         'Work alongside senior engineers on open-source cloud and API platforms.',
         '6-month structured internship program for Sri Lankan undergraduates.',
       ],
+      logoUrl: '/logos/wso2.png',
       logo: 'W',
       logoBg: 'bg-zinc-700 text-white',
     },
@@ -1247,11 +1319,14 @@ export default function Homepage() {
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-5">
                         {/* Left: Logo + Title + Company + Status + Metadata + Bullets */}
                         <div className="flex items-start gap-3.5 sm:gap-5 min-w-0 flex-1">
-                          <div
-                            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl flex-shrink-0 ${job.logoBg} flex items-center justify-center font-bold text-base sm:text-lg shadow-xs mt-0.5`}
-                          >
-                            {job.logo}
-                          </div>
+                          <CompanyLogo
+                            logoUrl={job.logoUrl}
+                            fallbackText={job.logo}
+                            fallbackBg={job.logoBg}
+                            companyName={job.company}
+                            size="md"
+                            isDarkMode={isDarkMode}
+                          />
 
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
@@ -1345,11 +1420,14 @@ export default function Homepage() {
                         } flex items-center justify-between gap-2.5`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div
-                            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex-shrink-0 ${job.logoBg} flex items-center justify-center font-bold text-base sm:text-lg shadow-xs`}
-                          >
-                            {job.logo}
-                          </div>
+                          <CompanyLogo
+                            logoUrl={job.logoUrl}
+                            fallbackText={job.logo}
+                            fallbackBg={job.logoBg}
+                            companyName={job.company}
+                            size="sm"
+                            isDarkMode={isDarkMode}
+                          />
                           <div className="min-w-0">
                             <p
                               className={`font-semibold text-sm sm:text-base truncate ${textMain}`}
